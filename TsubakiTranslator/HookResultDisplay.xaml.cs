@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,32 +35,27 @@ namespace TsubakiTranslator
 
         public void AlterItemInStackPanel(object sendingProcess, DataReceivedEventArgs outLine)
         {
-
-            Regex reg = new Regex(@"\[(.*?)\]");
-            Match match = reg.Match(outLine.Data);
-
-            if (match.Value.Length == 0)
-                return;
-
-            string content = outLine.Data.Replace(match.Value, "").Trim();//实际获取到的内容
-            string hookcode = match.Groups[1].Value;
-
-            if(HookItemDict.ContainsKey(hookcode))
-                HookItemDict[hookcode].HookData.HookText = content;
-            else
+            foreach(string code in translateWindow.TextHookHandler.HookDict.Keys)
             {
-                //Dispatcher是一个线程控制器，要控制线程里跑的东西，就要经过它。
-                //WPF里面，有个所谓UI线程，后台代码不能直接操作UI控件，需要控制，就要通过这个Dispatcher。
-                App.Current.Dispatcher.Invoke((Action)(() =>
+                if (HookItemDict.ContainsKey(code))
+                    HookItemDict[code].HookData.HookText = translateWindow.TextHookHandler.HookDict[code];
+                else
                 {
-                    /// start 你的逻辑代码
-                    HookResultItem item = new HookResultItem(hookcode, content, translateWindow);
-                    HookItemDict.Add(hookcode, item);
-                    DisplayStackPanel.Children.Add(item);
-                    ///  end
-                }));
-
+                    //Dispatcher是一个线程控制器，要控制线程里跑的东西，就要经过它。
+                    //WPF里面，有个所谓UI线程，后台代码不能直接操作UI控件，需要控制，就要通过这个Dispatcher。
+                    App.Current.Dispatcher.Invoke((Action)(() =>
+                    {
+                        /// start 你的逻辑代码
+                        HookResultItem item = new HookResultItem(code, translateWindow.TextHookHandler.HookDict[code], translateWindow);
+                        HookItemDict.Add(code, item);
+                        DisplayStackPanel.Children.Add(item);
+                        ///  end
+                    }));
+                    
+                }
+                    
             }
+
         }
     }
 }

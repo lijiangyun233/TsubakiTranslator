@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -55,15 +54,14 @@ namespace TsubakiTranslator
         {
             if (textHookHandler.SelectedHookCode == null )
                 return;
-
-            string sourceText = TranslateHandler.RemoveDuplicatedChar(textHookHandler.HookDict[textHookHandler.SelectedHookCode], textHookHandler.DuplicateTimes);
-
-            //hook跳转（一种可能），或者响应输出事件（设置了HookCode后的两种可能）
-            if (results.Count() > 0 && results.GetCurrentData().SourceText.Equals(sourceText))
+            if (results.Count()!=0 && results.GetCurrentData().SourceText.Equals(TranslateHandler.RemoveDuplicatedChar(textHookHandler.HookDict[textHookHandler.SelectedHookCode], textHookHandler.DuplicateTimes)))
                 return;
 
             //string result = await google.Translate(textHookHandler.HookDict[textHookHandler.SelectedHookCode]);
 
+            
+            string sourceText= TranslateHandler.RemoveDuplicatedChar(textHookHandler.HookDict[textHookHandler.SelectedHookCode], textHookHandler.DuplicateTimes);
+            
             TranslateData currentResult = new TranslateData(sourceText, new Dictionary<string, string>());
             results.AddTranslateData(currentResult);
 
